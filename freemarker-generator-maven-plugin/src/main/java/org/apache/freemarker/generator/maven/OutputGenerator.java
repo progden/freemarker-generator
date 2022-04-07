@@ -20,9 +20,11 @@ package org.apache.freemarker.generator.maven;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import org.apache.commons.io.output.FileWriterWithEncoding;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -167,8 +169,16 @@ class OutputGenerator {
         } catch (Throwable t) {
             throw new RuntimeException("Could not read template: " + templateFile.getName(), t);
         }
+		
+		String encoding = config.getOutputEncoding();
+		if(encoding == null) {
+			encoding = config.getDefaultEncoding();
+		}
+		if(encoding == null) {
+			encoding = "UTF-8";
+		}
 
-        try (FileWriter writer = new FileWriter(outputFile)) {
+        try (Writer writer = new FileWriterWithEncoding(outputFile, encoding)) {
             template.process(dataModel, writer);
         } catch (Throwable t) {
             throw new RuntimeException("Could not process template associated with data file: " + generatorLocation, t);
